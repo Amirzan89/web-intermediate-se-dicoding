@@ -1,0 +1,26 @@
+{
+  "name": "second-web-intermediate",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "generate-vapid": "web-push generate-vapid-keys"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.19.2",
+    "workbox-window": "^7.0.0",
+    "web-push": "^3.6.7"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "idb": "^8.0.0",
+    "workbox-precaching": "^7.0.0",
+    "workbox-routing": "^7.0.0",
+    "workbox-strategies": "^7.0.0",
+    "workbox-cacheable-response": "^7.0.0"
+  }
+}
