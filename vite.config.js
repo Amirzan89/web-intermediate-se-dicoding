@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: './',
   root: resolve(__dirname, 'src'),
   publicDir: resolve(__dirname, 'src', 'public'),
   assetsInclude: ['**/*.jpg', '**/*.png'],
@@ -26,7 +27,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\.your-api-domain\.com\/.*/i,
+            urlPattern: /^https:\/\/story-api\.dicoding\.dev\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -46,14 +47,16 @@ export default defineConfig({
         short_name: 'SWI App',
         description: 'Second Web Intermediate Progressive Web App',
         theme_color: '#ffffff',
+        start_url: './',
+        display: 'standalone',
         icons: [
           {
-            src: '/src/public/vite.svg',
+            src: './vite.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
           },
           {
-            src: '/src/public/vite.svg',
+            src: './vite.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
           },

@@ -20,6 +20,11 @@ export default [
         'file': import('../pages/tambah'),
     },
     {
+        'path': '/saved',
+        'title': 'Saved Stories | Dicoding Story',
+        'file': import('../pages/saved'),
+    },
+    {
         'path': '/details/:id',
         'title': 'Detail Post | Dicoding Story',
         'file': import('../pages/detail'),

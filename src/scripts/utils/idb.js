@@ -2,7 +2,7 @@ import { openDB } from 'idb';
 
 const DATABASE_NAME = 'second-web-intermediate-db';
 const DATABASE_VERSION = 1;
-const OBJECT_STORE_NAME = 'stories';
+const OBJECT_STORE_NAME = 'savedStories';
 
 const dbPromise = openDB(DATABASE_NAME, DATABASE_VERSION, {
   upgrade(database) {
@@ -25,6 +25,17 @@ const IdbHelper = {
 
   async deleteStory(id) {
     return (await dbPromise).delete(OBJECT_STORE_NAME, id);
+  },
+
+  async isStoryPresentSaved(id) {
+    const story = await this.getStory(id);
+    return !!story;
+  },
+
+  async clearAllSavedStories() {
+    const tx = (await dbPromise).transaction(OBJECT_STORE_NAME, 'readwrite');
+    await tx.objectStore(OBJECT_STORE_NAME).clear();
+    await tx.done;
   },
 };
 

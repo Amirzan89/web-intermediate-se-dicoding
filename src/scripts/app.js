@@ -21,7 +21,45 @@ async function initializePWA() {
     
     // Subscribe to push notifications if registration successful
     if (registration) {
-        await NotificationHelper.subscribePushNotification(registration);
+        // Wait for the service worker to be activated
+        if (registration.active) {
+            console.log('Service worker is already active');
+        } else {
+            console.log('Waiting for service worker to activate...');
+            // Wait for the service worker to become active
+            await new Promise(resolve => {
+                if (registration.installing) {
+                    registration.installing.addEventListener('statechange', e => {
+                        if (e.target.state === 'activated') {
+                            console.log('Service worker now activated');
+                            resolve();
+                        }
+                    });
+                } else if (registration.waiting) {
+                    registration.waiting.addEventListener('statechange', e => {
+                        if (e.target.state === 'activated') {
+                            console.log('Service worker now activated');
+                            resolve();
+                        }
+                    });
+                } else {
+                    // Already active
+                    resolve();
+                }
+            });
+        }
+        
+        // Now try to subscribe
+        try {
+            // Check authentication before subscribing
+            if (checkAuth()) {
+                await NotificationHelper.subscribePushNotification(registration);
+            } else {
+                console.log('User not authenticated. Skipping push notification subscription.');
+            }
+        } catch (error) {
+            console.error('Error subscribing to push notifications:', error);
+        }
     }
     
     // Test IndexedDB

@@ -5,6 +5,8 @@ import MapComposables from '../composables/Map';
 import HomePresenter from '../presenters/home';
 import HeaderComposables from '../composables/Header';
 import FooterComponent from '../components/Footer';
+import IdbHelper from '../utils/idb';
+import PopupComponent from '../components/Popup';
 const presenter = HomePresenter();
 const HeaderComposable = HeaderComposables();
 const MapComposable = MapComposables();
@@ -19,7 +21,10 @@ export default async() => {
                     <span>Posted on: ${new Date(timestamp).toLocaleString()} </span>
                     <span>Location: ${lat}, ${lng}</span>
                 </div>
+                <div class="card-actions">
                 <a class="pageChange" href="/details/${id}">Details</a>
+                    <button class="save-btn" data-id="${id}" data-name="${name}" data-desc="${desc}" data-img="${img}" data-lat="${lat}" data-lng="${lng}" data-timestamp="${timestamp}">Save</button>
+                </div>
             </div>
         `;
     }
@@ -58,21 +63,56 @@ export default async() => {
     const reRenderList = async() => {
         const listWrapper = document.getElementById('list-items');
         listWrapper.innerHTML = await hydrate();
+        addSaveButtonListeners();
     }
-    const afterRender = () => {
+    const addSaveButtonListeners = async() => {
+        const saveButtons = document.querySelectorAll('.save-btn');
+        for(const btn of saveButtons) {
+            const storyId = btn.dataset.id;
+            const isPresent = await IdbHelper.isStoryPresentSaved(storyId);
+            btn.textContent = isPresent ? 'Unsave' : 'Save';
+            btn.style.backgroundColor = isPresent ? '#ff4444' : '#4CAF50';
+            
+            btn.addEventListener('click', async() => {
+                const isCurrentlyPresent = await IdbHelper.isStoryPresentSaved(storyId);
+                if(isCurrentlyPresent) {
+                    await IdbHelper.deleteStory(storyId);
+                    btn.textContent = 'Save';
+                    btn.style.backgroundColor = '#4CAF50';
+                    PopupComponent('Story removed from saved', 'success');
+                } else {
+                    const storyData = {
+                        id: btn.dataset.id,
+                        name: btn.dataset.name,
+                        description: btn.dataset.desc,
+                        photoUrl: btn.dataset.img,
+                        lat: btn.dataset.lat,
+                        lon: btn.dataset.lng,
+                        createdAt: btn.dataset.timestamp
+                    };
+                    await IdbHelper.saveStory(storyData);
+                    btn.textContent = 'Unsave';
+                    btn.style.backgroundColor = '#ff4444';
+                    PopupComponent('Story saved to IndexedDB', 'success');
+                }
+            });
+        }
+    }
+    const afterRender = async() => {
         removeStyle('css-page');
         injectStyle(HomeCss, 'css-page');
-        HeaderComposable.afterRender();
+        await HeaderComposable.afterRender();
         const app = document.getElementById('app');
         let isReset = false;
         if(checkAuth()){
             app.querySelector('button#btnLogout').addEventListener('click', async() => HeaderComposable.logout());
         }
         listMapRender();
+        await addSaveButtonListeners();
         app.querySelector('button#btnResetCache').addEventListener('click', async(e) => {
             if(isReset) return;
             isReset = true;
-            if(await presenter.resetCache()){
+            if(presenter.resetCache()){
                 await reRenderList();
                 setTimeout(() => {
                     isReset = false;
