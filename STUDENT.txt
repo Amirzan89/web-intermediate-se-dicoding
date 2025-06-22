@@ -1,0 +1,1 @@
+url deployment netlify for Amirzan-web_intermediate_second: https://friendly-sunflower-7eee7a.netlify.app/
